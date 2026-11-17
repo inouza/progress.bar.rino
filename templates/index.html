@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Selamat Ulang Tahun, Sayang 🎂</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400&family=Caveat:wght@500;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="floating-hearts" id="floatingHearts"></div>
+  <div class="shooting-stars" id="shootingStars"></div>
+
+  <audio id="bgMusic" loop>
+    <source src="{{ url_for('static', filename='assets/music.mp3') }}" type="audio/mpeg" />
+  </audio>
+  <button class="music-btn" id="musicBtn" aria-label="Toggle music">🎵</button>
+
+  <!-- ==========================================
+       STAGE 1: OPENING ULTah
+       ========================================== -->
+  <section class="stage active" id="stageOpening">
+    <div class="stage-content">
+      <p class="hero-age">🎂 Selamat Ulang Tahun 🎂</p>
+      <h1 class="opening-title">{{ opening_title }}</h1>
+      <p class="opening-text" id="typewriter" data-text="{{ opening_text }}"></p>
+      <button class="start-btn" data-goto="stageGallery">Lanjut →</button>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       STAGE 2: GALERI POLAROID
+       ========================================== -->
+  <section class="stage" id="stageGallery">
+    <div class="stage-content">
+      <h2 class="gallery-title">{{ gallery_title }}</h2>
+      <p class="gallery-sub">{{ gallery_sub }}</p>
+
+      <div class="polaroid-gallery">
+        {% for p in gallery_photos %}
+        <div class="polaroid" style="--rot: {{ loop.index0 * 4 - 4 }}deg;">
+          <div class="polaroid-img">
+            <img src="{{ url_for('static', filename=p.image) }}"
+                 alt="{{ p.caption }}"
+                 onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\'polaroid-emoji\'>{{ p.emoji }}</span>';" />
+          </div>
+          <p class="polaroid-caption">{{ p.caption }}</p>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="nav-row">
+        <button class="back-btn-sm" data-goto="stageOpening">← Kembali</button>
+        <button class="start-btn" data-goto="stageLetter">Lanjut →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       STAGE 3: SURAT AMPLOP (dengan gambar scan)
+       ========================================== -->
+  <section class="stage" id="stageLetter">
+    <div class="stage-content">
+      <h2 class="letter-title">{{ letter_title }}</h2>
+      <p class="letter-sub">{{ letter_sub }}</p>
+
+      <div class="envelope-wrapper" id="envelopeWrapper">
+        <div class="envelope" id="envelope">
+          <div class="envelope-back"></div>
+          <div class="letter-paper" id="letterPaper">
+            <div class="letter-image-wrapper" id="letterImageWrapper">
+              <img id="letterImage"
+                   src="{{ url_for('static', filename=letter_image) }}"
+                   alt="Surat tulisan tangan"
+                   onerror="this.style.display='none'; document.getElementById('letterFallback').style.display='block';" />
+              <div class="letter-content" id="letterFallback" style="display:none;"></div>
+            </div>
+          </div>
+          <div class="envelope-front"></div>
+          <div class="envelope-flap" id="envelopeFlap"></div>
+          <div class="envelope-seal">💗</div>
+        </div>
+      </div>
+
+      <button class="start-btn hidden" id="letterNextBtn" data-goto="stageQuestion">Lanjut →</button>
+
+      <button class="back-btn-sm" data-goto="stageGallery" style="margin-top: 1rem;">← Kembali</button>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       STAGE 4: PERTANYAAN
+       ========================================== -->
+  <section class="stage" id="stageQuestion">
+    <div class="stage-content">
+      <h2 class="question-title">{{ question }}</h2>
+      <p class="question-sub">Pilih dengan hati ya…</p>
+
+      <div class="buttons-area" id="buttonsArea">
+        <button class="yes-btn" id="yesBtn">Yes 💗</button>
+        <button class="no-btn" id="noBtn">No 💔</button>
+      </div>
+
+      <p class="taunt-msg" id="tauntMsg"></p>
+
+      <button class="back-btn-sm" data-goto="stageLetter" style="margin-top: 1.5rem;">← Kembali ke Surat</button>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       STAGE 5: YES (dengan kartu interaktif)
+       ========================================== -->
+  <section class="stage" id="stageYes">
+    <div class="stage-content">
+      <h1 class="yes-title">Yeay! 🥳</h1>
+      <p class="yes-message" id="yesMessage" data-text="{{ yes_message }}"></p>
+
+      <p class="cards-hint">Klik kartunya buat liat alasan 💌</p>
+      <div class="love-cards">
+        {% for card in love_cards %}
+        <div class="love-card" onclick="this.classList.toggle('flipped')">
+          <div class="love-card-inner">
+            <div class="love-card-front">
+              <span class="love-card-emoji">{{ card.emoji }}</span>
+              <span class="love-card-label">{{ card.front }}</span>
+            </div>
+            <div class="love-card-back">
+              <p>{{ card.back }}</p>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="yes-hearts">💗 💖 💕 💞 💓</div>
+
+      <div class="nav-row-final">
+        <button class="back-btn-sm" data-goto="stageQuestion">← Kembali ke Pertanyaan</button>
+        <button class="restart-btn" onclick="location.reload()">🔄 Ulang dari Awal</button>
+      </div>
+
+      <p class="footer">&copy; {{ tahun }} — dibuat dengan 💛</p>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       STAGE 6: NO
+       ========================================== -->
+  <section class="stage" id="stageNo">
+    <div class="stage-content">
+      <h2 class="no-title">{{ no_message_title }}</h2>
+      <p class="no-message">{{ no_message }}</p>
+      <div class="no-hearts">🤍</div>
+
+      <div class="nav-row-final">
+        <button class="back-btn-sm" data-goto="stageQuestion">← Kembali ke Pertanyaan</button>
+        <button class="restart-btn" onclick="location.reload()">🔄 Ulang dari Awal</button>
+      </div>
+
+      <p class="footer">&copy; {{ tahun }} — dibuat dengan 💛</p>
+    </div>
+  </section>
+
+  <canvas id="confetti"></canvas>
+
+  <script>
+    window.NO_TAUNTS = {{ no_taunts | tojson }};
+    window.LETTER_TEXT = {{ letter_text_fallback | tojson }};
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
